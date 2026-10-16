@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RainRoots | Chelsea Community Flooding Solutions</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter for clean, readable typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        handwritten: ['Caveat', 'cursive'], // Added for a more organic touch
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f2fbf5',
+                            100: '#e1f6e8',
+                            200: '#c3ecd4',
+                            300: '#94ddb4',
+                            400: '#5ec38e',
+                            500: '#39a671',
+                            600: '#298457',
+                            700: '#246947',
+                            800: '#20543a',
+                            900: '#1b4531',
+                        },
+                        earth: {
+                            50: '#faf9f8',
+                            100: '#f5f4f1',
+                            200: '#eadecf',
+                            300: '#d1c5b4',
+                            800: '#4a443b',
+                            900: '#3d3831',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #faf9f8; /* earth-50 */
+            color: #4a443b; /* earth-800 */
+        }
+        
+        /* Map container styling */
+        #map-container {
+            height: 600px;
+            min-height: 50vh;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+
+        /* Custom Scrollbar for dashboard */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f4f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3ecd4;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94ddb4;
+        }
+
+        /* Organic shape utilities for a non-corporate feel */
+        .organic-border {
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+        }
+        .organic-btn {
+            border-radius: 20px 25px 15px 25px/25px 15px 25px 20px;
+        }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <header class="bg-white border-b border-earth-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo Area -->
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <!-- Simple SVG Leaf/Drop Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-brand-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C7.5 7 5 11 5 15a7 7 0 0014 0c0-4-2.5-8-7-13zm0 18a5 5 0 01-5-5c0-2.8 1.9-5.9 5-9.6 3.1 3.7 5 6.8 5 9.6a5 5 0 01-5 5z"/>
+                        <path d="M12 18a3 3 0 01-3-3c0-1.5 1-3.2 3-5.1 2 1.9 3 3.6 3 5.1a3 3 0 01-3 3z" fill="#94ddb4"/>
+                    </svg>
+                    <span class="font-handwritten text-3xl tracking-tight text-brand-900 mt-1">RainRoots</span>
+                </div>
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-brand-700 hover:text-brand-500 font-medium transition-colors border-b-2 border-brand-500 pb-1">Chelsea Dashboard</a>
+                    <a href="#" class="text-earth-800 hover:text-brand-600 font-medium transition-colors">Our Mission</a>
+                    <a href="#" class="text-earth-800 hover:text-brand-600 font-medium transition-colors">Community</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col">
+        <!-- Mission Section -->
+        <section class="bg-[#e1f6e8] py-10 px-4 sm:px-6 lg:px-8 border-b border-brand-200">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-brand-900 mb-4 font-handwritten">Mapping Chelsea's Rainwater Together</h1>
+                <p class="text-md md:text-lg text-earth-800 leading-relaxed mb-6">
+                    By tracking flood risks, mapping impermeable surfaces like roads and buildings, and planning green infrastructure, we can build a more resilient Chelsea. Explore the map below to see our community data.
+                </p>
+            </div>
+        </section>
+
+        <section class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex-grow flex flex-col lg:flex-row gap-8">
+            
+            <!-- Dashboard Sidebar -->
+            <div class="w-full lg:w-1/3 flex flex-col bg-white rounded-2xl shadow-lg border border-earth-200 overflow-hidden lg:h-[600px]">
+                <div class="p-5 bg-brand-700 text-white shrink-0 organic-border rounded-none shadow-inner m-2">
+                    <h2 class="text-xl font-bold flex items-center gap-2 font-handwritten text-2xl tracking-wide">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Community Data Hub
+                    </h2>
+                </div>
+
+                <div class="flex border-b border-earth-200 shrink-0 bg-earth-50 overflow-x-auto">
+                    <button onclick="switchTab('zones')" id="tab-zones" class="flex-1 py-3 px-2 text-[10px] sm:text-xs font-bold text-brand-700 border-b-2 border-brand-500 bg-white tracking-wider uppercase transition-colors whitespace-nowrap">Zones</button>
+                    <button onclick="switchTab('inventory')" id="tab-inventory" class="flex-1 py-3 px-2 text-[10px] sm:text-xs font-bold text-earth-500 border-b-2 border-transparent hover:text-earth-800 tracking-wider uppercase transition-colors whitespace-nowrap">Surfaces</button>
+                    <button onclick="switchTab('git')" id="tab-git" class="flex-1 py-3 px-2 text-[10px] sm:text-xs font-bold text-earth-500 border-b-2 border-transparent hover:text-earth-800 tracking-wider uppercase transition-colors whitespace-nowrap">Data Log</button>
+                    <button onclick="switchTab('raingardens')" id="tab-raingardens" class="flex-1 py-3 px-2 text-[10px] sm:text-xs font-bold text-earth-500 border-b-2 border-transparent hover:text-earth-800 tracking-wider uppercase transition-colors whitespace-nowrap">Gardens</button>
+                </div>
+
+                <div class="p-6 flex-grow overflow-y-auto bg-earth-50 relative">
+                    
+                    <!-- CONTENT: Zones (Default) -->
+                    <div id="content-zones" class="block h-full">
+                        <!-- Default State -->
+                        <div id="default-dashboard" class="flex flex-col items-center justify-center h-full text-center text-earth-800 opacity-70 py-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p class="font-medium">Click on a highlighted zone on the map to view detailed flood risk and demographic data.</p>
+                        </div>
+
+                        <!-- Active Data State (Hidden until map click) -->
+                        <div id="active-dashboard" class="hidden flex-col gap-5">
+                            <div class="border-b border-earth-200 pb-3">
+                                <h3 id="stat-title" class="text-2xl font-bold text-brand-900 mb-2">Zone Name</h3>
+                                <span id="stat-risk-badge" class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 uppercase tracking-wide">High Risk</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100 text-center">
+                                    <p class="text-[10px] text-earth-500 font-bold uppercase tracking-wider mb-1">Est. Population</p>
+                                    <p id="stat-pop" class="text-xl font-bold text-brand-800">--</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100 text-center">
+                                    <p class="text-[10px] text-earth-500 font-bold uppercase tracking-wider mb-1">Median Income</p>
+                                    <p id="stat-income" class="text-xl font-bold text-brand-800">--</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100">
+                                <p class="text-sm font-bold text-earth-900 mb-3 border-b border-earth-100 pb-1">Environmental Impact</p>
+                                
+                                <div class="mb-3">
+                                    <div class="flex justify-between text-xs mb-1 font-medium">
+                                        <span class="text-earth-700">Runoff Severity</span>
+                                        <span id="stat-runoff-val" class="text-brand-700 font-bold">--</span>
+                                    </div>
+                                    <div class="w-full bg-earth-200 rounded-full h-1.5">
+                                        <div id="bar-runoff" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1 font-medium">
+                                        <span class="text-earth-700">Green Infrastructure Needs</span>
+                                        <span id="stat-resilience-val" class="text-brand-700 font-bold">--</span>
+                                    </div>
+                                    <div class="w-full bg-earth-200 rounded-full h-1.5">
+                                        <div id="bar-resilience" class="bg-brand-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-earth-100 p-4 rounded-xl border-l-4 border-brand-400 shrink-0">
+                                <p id="stat-desc" class="text-sm text-earth-800 leading-relaxed font-medium">
+                                    Description will appear here.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTENT: Inventory (Surfaces Tracker) -->
+                    <div id="content-inventory" class="hidden flex-col gap-4">
+                        <div class="sticky top-0 bg-earth-50 pb-2 z-10 border-b border-earth-200 mb-1">
+                            <h3 class="font-bold text-earth-900 text-lg">Impermeable Surfaces</h3>
+                            <p class="text-xs text-earth-600">Community logged buildings and roads contributing to runoff.</p>
+                        </div>
+                        <div id="inventory-list" class="flex flex-col gap-3">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- CONTENT: Git Log (Version Control) -->
+                    <div id="content-git" class="hidden flex-col gap-4 font-mono text-sm">
+                        <div class="sticky top-0 bg-earth-50 pb-2 z-10 border-b border-earth-200 mb-1 font-sans">
+                            <h3 class="font-bold text-earth-900 text-lg">Data Log</h3>
+                            <p class="text-xs text-earth-600">Open-source history of map edits by the community.</p>
+                        </div>
+                        <div id="git-log-list" class="flex flex-col gap-5 border-l-2 border-brand-300 pl-4 ml-2 mt-2">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- CONTENT: Rain Gardens -->
+                    <div id="content-raingardens" class="hidden flex-col gap-5">
+                        <div class="sticky top-0 bg-earth-50 pb-2 z-10 border-b border-earth-200 mb-1">
+                            <h3 class="font-bold text-earth-900 text-lg">Rain Gardens</h3>
+                            <p class="text-xs text-earth-600">Nature-based solutions for urban flooding.</p>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-200">
+                            <h4 class="text-brand-800 font-bold mb-2 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                </svg>
+                                What is a Rain Garden?
+                            </h4>
+                            <p class="text-sm text-earth-800 leading-relaxed mb-4">
+                                A rain garden is a depressed land area that collects rain water from roofs, driveways, or streets and allows it to soak into the ground. Planted with deep-rooted native plants, they act as natural sponges.
+                            </p>
+                            <h4 class="text-brand-800 font-bold mb-2 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                                How They Help Chelsea
+                            </h4>
+                            <p class="text-sm text-earth-800 leading-relaxed">
+                                By capturing runoff from impermeable concrete and asphalt, rain gardens reduce the massive volume of water rushing into Chelsea's storm drains during storms. This mitigates urban flooding and filters out pollutants before they reach the Mystic River and Chelsea Creek.
+                            </p>
+                        </div>
+
+                        <!-- Call to Action -->
+                        <div class="bg-brand-600 p-5 rounded-xl text-center shadow-md border-2 border-brand-400 mt-2">
+                            <h4 class="text-white font-bold mb-2 text-lg font-handwritten text-2xl tracking-wide">Get Involved!</h4>
+                            <p class="text-sm text-brand-100 mb-5 leading-relaxed">
+                                Ready to make a difference? Join your neighbors in building and maintaining rain gardens across Chelsea. Greenroots leads community workshops, volunteer planting days, and local environmental advocacy efforts.
+                            </p>
+                            <a href="mailto:info@greenrootschelsea.org" class="inline-block bg-white text-brand-800 font-bold py-2.5 px-6 organic-btn shadow-sm hover:bg-earth-100 hover:shadow-md transition-all">
+                                Contact Greenroots
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="w-full lg:w-2/3 relative rounded-2xl shadow-lg border-4 border-white overflow-hidden bg-earth-200">
+                <!-- Map Overlay UI for Legend -->
+                <div class="absolute top-4 right-4 z-10 bg-white/95 backdrop-blur px-4 py-3 rounded-xl shadow-md border border-earth-200">
+                    <h4 class="text-[10px] font-bold text-earth-500 uppercase tracking-wider mb-2">Flood Vulnerability</h4>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded bg-red-500 opacity-80 border border-red-700"></span>
+                            <span class="text-xs text-earth-800 font-semibold">High Risk</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded bg-orange-400 opacity-80 border border-orange-600"></span>
+                            <span class="text-xs text-earth-800 font-semibold">Medium Risk</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 rounded bg-brand-400 opacity-80 border border-brand-600"></span>
+                            <span class="text-xs text-earth-800 font-semibold">Low Risk (Resilient)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actual Map Div -->
+                <div id="map-container">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Sidebar Logic ---
+        function switchTab(tabName) {
+            const tabs = ['zones', 'inventory', 'git', 'raingardens'];
+            
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const content = document.getElementById(`content-${t}`);
+                
+                if (t === tabName) {
+                    btn.classList.add('text-brand-700', 'border-brand-500', 'bg-white');
+                    btn.classList.remove('text-earth-500', 'border-transparent', 'bg-earth-50');
+                    
+                    content.classList.remove('hidden');
+                    content.classList.add(t === 'zones' ? 'block' : 'flex');
+                } else {
+                    btn.classList.remove('text-brand-700', 'border-brand-500', 'bg-white');
+                    btn.classList.add('text-earth-500', 'border-transparent', 'bg-earth-50');
+                    
+                    content.classList.add('hidden');
+                    content.classList.remove('flex', 'block');
+                }
+            });
+        }
+
+        // Initialize Mock Data on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Populate Impermeable Surface Inventory
+            const inventoryData = [
+                { id: "BLD-102", type: "Building", name: "Chelsea High School", area: "125,000 sqft", status: "Verified" },
+                { id: "RD-045", type: "Road", name: "Broadway (Everett Ave to City Hall)", area: "45,200 sqft", status: "Logged" },
+                { id: "LOT-012", type: "Parking Lot", name: "Market Basket Surface Lot", area: "82,500 sqft", status: "Needs Review" },
+                { id: "BLD-491", type: "Building", name: "Mystic Mall Complex", area: "210,000 sqft", status: "Verified" },
+                { id: "RD-088", type: "Road", name: "Marginal Street Corridor", area: "78,000 sqft", status: "Logged" },
+                { id: "BLD-833", type: "Building", name: "Carter St Warehouses", area: "54,000 sqft", status: "Verified" },
+            ];
+
+            const inventoryList = document.getElementById('inventory-list');
+            inventoryData.forEach(item => {
+                const statusColor = item.status === 'Verified' ? 'text-brand-700 bg-brand-100 border-brand-200' : (item.status === 'Logged' ? 'text-blue-700 bg-blue-100 border-blue-200' : 'text-orange-700 bg-orange-100 border-orange-200');
+                inventoryList.innerHTML += `
+                    <div class="bg-white p-3 rounded-lg border-2 border-earth-100 shadow-sm text-sm hover:border-brand-300 transition-colors">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-earth-900">${item.id}</span>
+                            <span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded border ${statusColor}">${item.status}</span>
+                        </div>
+                        <div class="text-earth-800 font-medium mb-2">${item.name}</div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-earth-600 font-semibold bg-earth-100 px-2 py-1 rounded">${item.type}</span>
+                            <span class="font-bold text-earth-800">${item.area} <span class="font-normal text-earth-500">Runoff Area</span></span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 2. Populate Git Log
+            const gitData = [
+                { hash: "c7a89f1", author: "maria_g", date: "2 hrs ago", msg: "Updated area calculation for Market Basket Lot based on new satellite imagery." },
+                { hash: "b3f21a9", author: "alex_chen", date: "Yesterday", msg: "Added 15 new residential building footprints in Prattville zone." },
+                { hash: "9d4e2b0", author: "sys_admin", date: "Sept 18", msg: "Merged branch 'marginal-st-survey' into main map data." },
+                { hash: "4a1c8f5", author: "chelsea_dpw", date: "Sept 15", msg: "Corrected road geometry parameters for Broadway segment." },
+                { hash: "f82b3d7", author: "maria_g", date: "Sept 10", msg: "Initial import of Chelsea High School impermeable surfaces." },
+            ];
+
+            const gitList = document.getElementById('git-log-list');
+            gitData.forEach(commit => {
+                gitList.innerHTML += `
+                    <div class="relative">
+                        <div class="absolute -left-[21px] top-1.5 w-2.5 h-2.5 bg-brand-500 rounded-full border-2 border-earth-50"></div>
+                        <div class="mb-1 flex items-baseline gap-2">
+                            <span class="text-brand-800 font-bold bg-brand-100 px-1.5 py-0.5 rounded text-[10px]">${commit.hash}</span>
+                            <span class="text-earth-500 text-[10px] uppercase font-bold">${commit.date}</span>
+                        </div>
+                        <div class="text-earth-800 mb-1 leading-relaxed font-sans font-medium text-[13px]">${commit.msg}</div>
+                        <div class="text-[11px] text-earth-500 font-sans">by <span class="font-semibold text-earth-900">${commit.author}</span></div>
+                    </div>
+                `;
+            });
+        });
+
+        // --- Google Maps Logic ---
+        let map;
+
+        function initMap() {
+            // STRICT Chelsea, MA bounding coordinates to lock the view
+            const chelseaBounds = {
+                north: 42.4080,
+                south: 42.3750,
+                west: -71.0550,
+                east: -71.0100,
+            };
+
+            // Custom map styling for an "earthy" non-corporate look
+            const customMapStyle = [
+                { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#d1c5b4" }] },
+                { "featureType": "administrative", "elementType": "labels.text.fill", "stylers": [{ "color": "#4a443b" }] },
+                { "featureType": "landscape", "elementType": "all", "stylers": [{ "color": "#f5f4f1" }] },
+                { "featureType": "poi", "elementType": "all", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+                { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#a8a29e" }] },
+                { "featureType": "road.arterial", "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "transit", "elementType": "all", "stylers": [{ "visibility": "off" }] },
+                { "featureType": "water", "elementType": "geometry.fill", "stylers": [{ "color": "#c3ecd4" }] },
+                { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#298457" }] }
+            ];
+
+            // Initialize Map
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 42.3918, lng: -71.0328 },
+                zoom: 14.5,
+                minZoom: 14, // Prevent zooming too far out
+                restriction: {
+                    latLngBounds: chelseaBounds,
+                    strictBounds: true, // Strictly lock bounds
+                },
+                styles: customMapStyle,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true,
+                zoomControl: true,
+            });
+
+            // Mock GeoJSON defining detailed neighborhoods and environmental data
+            const rainRootsData = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "name": "Marginal St. Corridor (Mystic River)",
+                            "risk": "High Risk",
+                            "riskColor": "#ef4444", 
+                            "population": "3,420",
+                            "income": "$42,500",
+                            "runoff": 85,
+                            "runoffText": "Severe Pooling & Runoff",
+                            "resilience": 30,
+                            "resilienceText": "Urgent Green Infra Needed",
+                            "description": "A low-lying coastal edge abutting the Mystic River. High impermeable surface ratios (mostly concrete and asphalt) lead to rapid rainwater accumulation and overwhelmed storm drains during heavy downpours."
+                        },
+                        // Detailed polygon along the coast
+                        "geometry": { "type": "Polygon", "coordinates": [[[-71.0450, 42.3860], [-71.0400, 42.3840], [-71.0380, 42.3810], [-71.0430, 42.3815], [-71.0470, 42.3840], [-71.0450, 42.3860]]] }
+                    },
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "name": "Chelsea Creek Industrial Edge",
+                            "risk": "High Risk",
+                            "riskColor": "#ef4444", 
+                            "population": "850",
+                            "income": "$38,000",
+                            "runoff": 92,
+                            "runoffText": "Direct Flow to Creek",
+                            "resilience": 20,
+                            "resilienceText": "Extremely Low Permeability",
+                            "description": "Heavy industrial zone along Chelsea Creek with minimal soil to absorb rain. Runoff carries localized surface pollutants directly into the water. A prime target for industrial bio-swales."
+                        },
+                        "geometry": { "type": "Polygon", "coordinates": [[[-71.0250, 42.3880], [-71.0200, 42.3890], [-71.0150, 42.3870], [-71.0180, 42.3840], [-71.0250, 42.3850], [-71.0250, 42.3880]]] }
+                    },
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "name": "Bellingham Square Downtown",
+                            "risk": "Medium Risk",
+                            "riskColor": "#fb923c",
+                            "population": "5,100",
+                            "income": "$48,200",
+                            "runoff": 65,
+                            "runoffText": "Moderate Street Flooding",
+                            "resilience": 55,
+                            "resilienceText": "Active Community Tree Programs",
+                            "description": "Dense urban center. The dense building footprint causes rainwater to funnel into the streets. Recent community tree-planting initiatives by Greenroots are beginning to improve absorption."
+                        },
+                        "geometry": { "type": "Polygon", "coordinates": [[[-71.0360, 42.3940], [-71.0310, 42.3960], [-71.0280, 42.3920], [-71.0340, 42.3900], [-71.0360, 42.3940]]] }
+                    },
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "name": "Prattville Heights",
+                            "risk": "Low Risk",
+                            "riskColor": "#4ade80", 
+                            "population": "4,200",
+                            "income": "$65,000",
+                            "runoff": 25,
+                            "runoffText": "Well Managed Natural Drainage",
+                            "resilience": 85,
+                            "resilienceText": "High Canopy Cover",
+                            "description": "Higher elevation residential neighborhood with substantial mature tree canopy and permeable yards. This area acts as a natural sponge, preventing water from rushing down into the lower city basins."
+                        },
+                        "geometry": { "type": "Polygon", "coordinates": [[[-71.0450, 42.4040], [-71.0380, 42.4060], [-71.0350, 42.4000], [-71.0420, 42.3980], [-71.0450, 42.4040]]] }
+                    }
+                ]
+            };
+
+            // Add data to map
+            map.data.addGeoJson(rainRootsData);
+
+            // Style polygons dynamically based on risk properties
+            map.data.setStyle(function(feature) {
+                return {
+                    fillColor: feature.getProperty('riskColor'),
+                    fillOpacity: 0.4,
+                    strokeColor: feature.getProperty('riskColor'),
+                    strokeWeight: 2,
+                    strokeOpacity: 0.9
+                };
+            });
+
+            // Hover effects
+            map.data.addListener('mouseover', function(event) {
+                map.data.overrideStyle(event.feature, {
+                    fillOpacity: 0.7,
+                    strokeWeight: 3
+                });
+            });
+
+            map.data.addListener('mouseout', function(event) {
+                map.data.revertStyle();
+            });
+
+            // Click listener to update sidebar dashboard
+            map.data.addListener('click', function(event) {
+                const props = {};
+                event.feature.forEachProperty(function(value, property) {
+                    props[property] = value;
+                });
+                
+                // Ensure we are on the 'zones' tab
+                switchTab('zones');
+                updateDashboard(props);
+            });
+        }
+
+        function updateDashboard(data) {
+            // Toggle view states
+            document.getElementById('default-dashboard').classList.add('hidden');
+            document.getElementById('active-dashboard').classList.remove('hidden');
+            document.getElementById('active-dashboard').classList.add('flex');
+
+            // Set Text Data
+            document.getElementById('stat-title').textContent = data.name;
+            document.getElementById('stat-pop').textContent = data.population;
+            document.getElementById('stat-income').textContent = data.income;
+            document.getElementById('stat-desc').textContent = data.description;
+
+            // Set Badge
+            const badge = document.getElementById('stat-risk-badge');
+            badge.textContent = data.risk;
+            // Clear previous color classes
+            badge.className = "inline-block px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wide";
+            if (data.risk === "High Risk") {
+                badge.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+            } else if (data.risk === "Medium Risk") {
+                badge.classList.add('bg-orange-100', 'text-orange-800', 'border', 'border-orange-200');
+            } else {
+                badge.classList.add('bg-brand-100', 'text-brand-800', 'border', 'border-brand-200');
+            }
+
+            // Set Progress Bars & Metrics
+            document.getElementById('stat-runoff-val').textContent = data.runoffText;
+            const runoffBar = document.getElementById('bar-runoff');
+            runoffBar.style.width = data.runoff + '%';
+            runoffBar.className = `h-1.5 rounded-full transition-all duration-500 ${data.runoff > 70 ? 'bg-red-500' : data.runoff > 40 ? 'bg-orange-400' : 'bg-brand-400'}`;
+
+            document.getElementById('stat-resilience-val').textContent = data.resilienceText;
+            const resBar = document.getElementById('bar-resilience');
+            resBar.style.width = data.resilience + '%';
+            resBar.className = `h-1.5 rounded-full transition-all duration-500 ${data.resilience > 70 ? 'bg-brand-500' : data.resilience > 40 ? 'bg-orange-400' : 'bg-red-400'}`;
+        }
+    </script>
+    
+    <!-- Load Google Maps API using provided key -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv9vbcNVYuaqDZmepeyRRsr0B_BaNv-r4&callback=initMap"></script>
+</body>
+</html>
